@@ -1,3 +1,3 @@
 struct RAM {
-    int[4096] data;
-}
+    int data[65536];
+};
