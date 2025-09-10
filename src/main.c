@@ -20,6 +20,7 @@ int main() {
          *   - Bit 1: Ready
          *   - Bit 2: Zero
          *   - Bit 3: Carry
+         *   ... 
         */
     };
 
