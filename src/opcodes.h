@@ -45,3 +45,12 @@ const int OP_LOADY_ABX = 0xBC;
 const int OP_STORY_ZPG = 0x84;
 const int OP_STORY_ZPX = 0x94;
 const int OP_STORY_ABS = 0x8C;
+
+
+// ------- Transfers -------
+const int OP_TRANS_ATX = 0xAA;
+const int OP_TRANS_ATY = 0xA8;
+const int OP_TRANS_XTA = 0x8A;
+const int OP_TRANS_YTA = 0x98;
+const int OP_TRANS_STX = 0xBA;
+const int OP_TRANS_XTS = 0x9A;
