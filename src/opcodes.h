@@ -8,6 +8,13 @@ const int OP_NOOP = 0xEA;
 // ..._ABS => Absolute
 // ..._ABX => Absolute,  X
 // ..._ABY => Absolute,  Y
+// ..._ATX => Accumulator to X
+// ..._ATY => Accumulator to Y
+// ..._XTA => X to accumulator
+// ..._YTA => Y to accumulator
+// ..._STX => Stack pointer to X
+// ..._XTS => X to stack pointer
+// ..._STK => (to/from) Stack
 
 // ------- A register -------
 const int OP_LOADA_IMM = 0xA9;
@@ -54,3 +61,35 @@ const int OP_TRANS_XTA = 0x8A;
 const int OP_TRANS_YTA = 0x98;
 const int OP_TRANS_STX = 0xBA;
 const int OP_TRANS_XTS = 0x9A;
+
+// ---- Stack Operations ----
+const int OP_PUSHA_STK = 0x48;
+const int OP_PUSHP_STK = 0x08;
+const int OP_PULLA_STK = 0x68;
+const int OP_PULLP_STK = 0x28;
+
+// -------- Logical --------
+const int OP_AND_IMM = 0x29;
+const int OP_AND_ZPG = 0x25;
+const int OP_AND_ZPX = 0x35;
+const int OP_AND_ABS = 0x2D;
+const int OP_AND_ABX = 0x3D;
+const int OP_AND_ABY = 0x39;
+
+const int OP_XOR_IMM = 0x49;
+const int OP_XOR_ZPG = 0x45;
+const int OP_XOR_ZPX = 0x55;
+const int OP_XOR_ABS = 0x4D;
+const int OP_XOR_ABX = 0x5D;
+const int OP_XOR_ABY = 0x59;
+
+const int OP_ORA_IMM = 0x09;
+const int OP_ORA_ZPG = 0x05;
+const int OP_ORA_ZPX = 0x15;
+const int OP_ORA_ABS = 0x0D;
+const int OP_ORA_ABX = 0x1D;
+const int OP_ORA_ABY = 0x19;
+
+
+const int OP_TST_ZPG = 0x24;
+const int OP_TST_ABS = 0x2C;
