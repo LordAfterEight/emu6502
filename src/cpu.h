@@ -1,3 +1,6 @@
+#include "opcodes.h"
+#include <stdio.h>
+
 struct CPU {
     int stack_pointer;
     int program_counter;
@@ -19,10 +22,10 @@ static inline void increase_pc(struct CPU* cpu) {
 
 static inline void process_instruction(struct CPU* cpu) {
     switch (cpu->i_reg) {
-        case 0x00: // NOP
+        case OP_NOOP: // NOP
             increase_pc(cpu);
             break;
-        case 0x0F: // HLT
+        case OP_HALT: // HLT
             cpu->f_reg = 0b00000000;
             break;
     }
