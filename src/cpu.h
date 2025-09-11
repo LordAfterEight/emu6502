@@ -14,10 +14,18 @@ struct CPU {
 
 static inline void increase_pc(struct CPU* cpu) {
     if (cpu->program_counter >= 65535) {
-        cpu->program_counter = 0x0000;
+        cpu->program_counter = 0x8000;
         return;
     }
     cpu->program_counter += 1;
+}
+
+static inline void increase_sp(struct CPU* cpu) {
+    if (cpu->stack_pointer >= 0x1FF) {
+        cpu->stack_pointer = 0x100;
+        return;
+    }
+    cpu->stack_pointer += 1;
 }
 
 static inline int fetch_instruction(struct CPU* cpu, int memory[]) {
@@ -43,11 +51,11 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             printf("\nLoaded 0x%02X (%d) into the A register (immediate)\n", cpu->a_reg, cpu->a_reg);
             break;
         case OP_LOADA_ZPG:
-            cpu->a_reg = ram->data[cpu->i_reg];
+            cpu->a_reg = ram->data[fetch_instruction(cpu, ram->data)];
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->a_reg, cpu->a_reg);
             break;
         case OP_LOADA_ZPX:
-            cpu->a_reg = ram->data[cpu->i_reg + cpu->x_reg];
+            cpu->a_reg = ram->data[fetch_instruction(cpu, ram->data) + cpu->x_reg];
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->a_reg, cpu->a_reg);
             break;
         case OP_LOADA_ABS:
@@ -74,11 +82,11 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             printf("\nLoaded 0x%02X (%d) into the A register (immediate)\n", cpu->x_reg, cpu->x_reg);
             break;
         case OP_LOADX_ZPG:
-            cpu->x_reg = ram->data[cpu->i_reg];
+            cpu->x_reg = ram->data[fetch_instruction(cpu, ram->data)];
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->x_reg, cpu->x_reg);
             break;
         case OP_LOADX_ZPY:
-            cpu->x_reg = ram->data[cpu->i_reg + cpu->y_reg];
+            cpu->x_reg = ram->data[fetch_instruction(cpu, ram->data) + cpu->y_reg];
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->x_reg, cpu->x_reg);
             break;
         case OP_LOADX_ABS:
@@ -99,11 +107,11 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             printf("\nLoaded 0x%02X (%d) into the A register (immediate)\n", cpu->y_reg, cpu->y_reg);
             break;
         case OP_LOADY_ZPG:
-            cpu->y_reg = ram->data[cpu->i_reg];
+            cpu->y_reg = ram->data[fetch_instruction(cpu, ram->data)];
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->y_reg, cpu->y_reg);
             break;
         case OP_LOADY_ZPX:
-            cpu->y_reg = ram->data[cpu->i_reg + cpu->x_reg];
+            cpu->y_reg = ram->data[fetch_instruction(cpu, ram->data) + cpu->x_reg];
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->y_reg, cpu->y_reg);
             break;
         case OP_LOADY_ABS:
@@ -146,19 +154,51 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
 
         case OP_PUSHA_STK:
             ram->data[cpu->stack_pointer] = cpu->a_reg;
-            printf("\nPushed A register value to the stack\n");
+            printf("\nPushed A register value to the stack: 0x%02X (%d)\n", ram->data[cpu->stack_pointer], ram->data[cpu->stack_pointer]);
             break;
         case OP_PUSHP_STK:
             ram->data[cpu->stack_pointer] = cpu->f_reg;
-            printf("\nPushed processor status to the stack\n");
+            printf("\nPushed processor status to the stack: 0b%b\n", ram->data[cpu->stack_pointer]);
             break;
         case OP_PULLA_STK:
             cpu->a_reg = ram->data[cpu->stack_pointer];
-            printf("\nPushed A register value to the stack\n");
+            printf("\nPulled A register value from the stack: 0x%02X (%d)\n", ram->data[cpu->stack_pointer], ram->data[cpu->stack_pointer]);
             break;
         case OP_PULLP_STK:
             cpu->f_reg = ram->data[cpu->stack_pointer];
-            printf("\nPushed processor status to the stack\n");
+            printf("\nPulled processor status from the stack: 0b%b\n", ram->data[cpu->stack_pointer]);
+            break;
+
+        case OP_AND_IMM:
+            cpu->a_reg = cpu->a_reg & fetch_instruction(cpu, ram->data);
+            printf("\nPerformed AND operation (immediate). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_AND_ZPG:
+            cpu->a_reg = cpu->a_reg & ram->data[fetch_instruction(cpu, ram->data)];
+            printf("%d", ram->data[0]);
+            printf("\nPerformed AND operation (zero page). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_AND_ZPX:
+            cpu->a_reg = cpu->a_reg & ram->data[fetch_instruction(cpu, ram->data) + cpu->x_reg];
+            printf("\nPerformed AND operation (zero page, x). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_AND_ABS:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg & ram->data[(lo_byte << 8) | hi_byte];
+            printf("\nPerformed AND operation (absolute). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_AND_ABX:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg & ram->data[((lo_byte << 8) | hi_byte) + cpu->x_reg];
+            printf("\nPerformed AND operation (absolute, x). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_AND_ABY:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg & ram->data[((lo_byte << 8) | hi_byte) + cpu->y_reg];
+            printf("\nPerformed AND operation (absolute, y). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
             break;
 
         default:

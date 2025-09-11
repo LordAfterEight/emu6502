@@ -1,4 +1,4 @@
-#define OP_HALT 0x0F
+#define OP_HALT 0x00
 #define OP_NOOP 0xEA
 
 

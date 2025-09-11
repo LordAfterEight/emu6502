@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
     struct CPU cpu = {
-        .stack_pointer = 0x0,
+        .stack_pointer = 0x0100,
         .program_counter = 0xFFFB,
         .a_reg = 0,
         .x_reg = 0,
@@ -40,13 +40,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int bytes_read = 0; // Counter for the number of bytes read
+    int bytes_read = 0;
 
     int byte;
     while ((byte = fgetc(file)) != EOF) {
-        ram.data[bytes_read + 0] = (int)(unsigned char)byte;
-        if (ram.data[bytes_read + 0] != 0x0) {
-            printf("Byte %d: 0x%X\n", bytes_read, ram.data[bytes_read + 0]);
+        ram.data[bytes_read + 0x8000] = (int)(unsigned char)byte;
+        if (ram.data[bytes_read + 0x8000] != 0x0) {
+            printf("Byte %d: 0x%X\n", bytes_read, ram.data[bytes_read + 0x8000]);
         }
         bytes_read++;
     }
@@ -62,10 +62,10 @@ int main(int argc, char *argv[]) {
 
     do {
         process_instruction(&cpu, &ram);
-        sleep(1);
+        //sleep(1);
     } while (cpu.f_reg & 0b10000000);
 
-    printf("CPU halted");
+    printf("\nCPU halted");
 
     return 0;
 }
