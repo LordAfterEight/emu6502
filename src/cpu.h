@@ -8,14 +8,13 @@ struct CPU {
     int i_reg;
     int f_reg;
     int a_reg;
-    int b_reg;
-    int c_reg;
-    int d_reg;
+    int x_reg;
+    int y_reg;
 };
 
 static inline void increase_pc(struct CPU* cpu) {
     if (cpu->program_counter >= 65535) {
-        cpu->program_counter = 0x1000;
+        cpu->program_counter = 0x0000;
         return;
     }
     cpu->program_counter += 1;
@@ -23,12 +22,14 @@ static inline void increase_pc(struct CPU* cpu) {
 
 static inline int fetch_instruction(struct CPU* cpu, int memory[]) {
     increase_pc(cpu);
-    printf("\nFetched instruction: 0x%02X at address 0x%04X\n", memory[cpu->program_counter], cpu->program_counter);
+    printf("\nRead value: 0x%02X (%d) at address 0x%04X (%d)", memory[cpu->program_counter], memory[cpu->program_counter], cpu->program_counter, cpu->program_counter);
     return memory[cpu->program_counter];
 }
 
 static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
     cpu->i_reg = fetch_instruction(cpu, ram->data);
+    int hi_byte = 0;
+    int lo_byte = 0;
     switch (cpu->i_reg) {
         case OP_NOOP:
             increase_pc(cpu);
@@ -36,14 +37,132 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
         case OP_HALT:
             cpu->f_reg = 0b00000000;
             break;
+
         case OP_LOADA_IMM:
             cpu->a_reg = fetch_instruction(cpu, ram->data);
+            printf("\nLoaded 0x%02X (%d) into the A register (immediate)\n", cpu->a_reg, cpu->a_reg);
             break;
         case OP_LOADA_ZPG:
             cpu->a_reg = ram->data[cpu->i_reg];
+            printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->a_reg, cpu->a_reg);
             break;
+        case OP_LOADA_ZPX:
+            cpu->a_reg = ram->data[cpu->i_reg + cpu->x_reg];
+            printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_LOADA_ABS:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_LOADA_ABX:
+            hi_byte = fetch_instruction(cpu, ram->data + cpu->x_reg);
+            lo_byte = fetch_instruction(cpu, ram->data + cpu->x_reg);
+            cpu->a_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_LOADA_ABY:
+            hi_byte = fetch_instruction(cpu, ram->data + cpu->y_reg);
+            lo_byte = fetch_instruction(cpu, ram->data + cpu->y_reg);
+            cpu->a_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->a_reg, cpu->a_reg);
+            break;
+
+        case OP_LOADX_IMM:
+            cpu->x_reg = fetch_instruction(cpu, ram->data);
+            printf("\nLoaded 0x%02X (%d) into the A register (immediate)\n", cpu->x_reg, cpu->x_reg);
+            break;
+        case OP_LOADX_ZPG:
+            cpu->x_reg = ram->data[cpu->i_reg];
+            printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->x_reg, cpu->x_reg);
+            break;
+        case OP_LOADX_ZPY:
+            cpu->x_reg = ram->data[cpu->i_reg + cpu->y_reg];
+            printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->x_reg, cpu->x_reg);
+            break;
+        case OP_LOADX_ABS:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->x_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->x_reg, cpu->x_reg);
+            break;
+        case OP_LOADX_ABY:
+            hi_byte = fetch_instruction(cpu, ram->data + cpu->y_reg);
+            lo_byte = fetch_instruction(cpu, ram->data + cpu->y_reg);
+            cpu->x_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->x_reg, cpu->x_reg);
+            break;
+
+        case OP_LOADY_IMM:
+            cpu->y_reg = fetch_instruction(cpu, ram->data);
+            printf("\nLoaded 0x%02X (%d) into the A register (immediate)\n", cpu->y_reg, cpu->y_reg);
+            break;
+        case OP_LOADY_ZPG:
+            cpu->y_reg = ram->data[cpu->i_reg];
+            printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->y_reg, cpu->y_reg);
+            break;
+        case OP_LOADY_ZPX:
+            cpu->y_reg = ram->data[cpu->i_reg + cpu->x_reg];
+            printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->y_reg, cpu->y_reg);
+            break;
+        case OP_LOADY_ABS:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->y_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->y_reg, cpu->y_reg);
+            break;
+        case OP_LOADY_ABX:
+            hi_byte = fetch_instruction(cpu, ram->data + cpu->x_reg);
+            lo_byte = fetch_instruction(cpu, ram->data + cpu->x_reg);
+            cpu->y_reg = (lo_byte << 8) | hi_byte;
+            printf("\nLoaded 0x%04X (%d) into the A register (absolute)\n", cpu->y_reg, cpu->y_reg);
+            break;
+
+        case OP_TRANS_ATX:
+            cpu->x_reg = cpu->a_reg;
+            printf("\nCopied A register value to X register\n");
+            break;
+        case OP_TRANS_ATY:
+            cpu->y_reg = cpu->a_reg;
+            printf("\nCopied A register value to Y register\n");
+            break;
+        case OP_TRANS_XTA:
+            cpu->a_reg = cpu->x_reg;
+            printf("\nCopied X register value to A register\n");
+            break;
+        case OP_TRANS_YTA:
+            cpu->a_reg = cpu->y_reg;
+            printf("\nCopied Y register value to A register\n");
+            break;
+        case OP_TRANS_STX:
+            cpu->x_reg = cpu->stack_pointer;
+            printf("\nCopied stack pointer to X register\n");
+            break;
+        case OP_TRANS_XTS:
+            cpu->stack_pointer = cpu->x_reg;
+            printf("\nCopied X register value to stack pointer\n");
+            break;
+
+        case OP_PUSHA_STK:
+            ram->data[cpu->stack_pointer] = cpu->a_reg;
+            printf("\nPushed A register value to the stack\n");
+            break;
+        case OP_PUSHP_STK:
+            ram->data[cpu->stack_pointer] = cpu->f_reg;
+            printf("\nPushed processor status to the stack\n");
+            break;
+        case OP_PULLA_STK:
+            cpu->a_reg = ram->data[cpu->stack_pointer];
+            printf("\nPushed A register value to the stack\n");
+            break;
+        case OP_PULLP_STK:
+            cpu->f_reg = ram->data[cpu->stack_pointer];
+            printf("\nPushed processor status to the stack\n");
+            break;
+
         default:
-            printf("Unknown instruction: 0x%02X\n", cpu->i_reg);
+            printf("\nUnknown instruction: 0x%02X (%d)\n", cpu->i_reg, cpu->i_reg);
             break;
     }
 }

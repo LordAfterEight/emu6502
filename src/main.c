@@ -6,11 +6,10 @@
 int main(int argc, char *argv[]) {
     struct CPU cpu = {
         .stack_pointer = 0x0,
-        .program_counter = 0x1000,
+        .program_counter = 0xFFFB,
         .a_reg = 0,
-        .b_reg = 0,
-        .c_reg = 0,
-        .d_reg = 0,
+        .x_reg = 0,
+        .y_reg = 0,
         .i_reg = 0,
         .f_reg = 0b10000000,
 
@@ -45,9 +44,9 @@ int main(int argc, char *argv[]) {
 
     int byte;
     while ((byte = fgetc(file)) != EOF) {
-        ram.data[bytes_read + 0x1000] = (int)(unsigned char)byte;
-        if (ram.data[bytes_read + 0x1000] != 0x0) {
-            printf("Byte %d: 0x%X\n", bytes_read, ram.data[bytes_read + 0x1000]);
+        ram.data[bytes_read + 0] = (int)(unsigned char)byte;
+        if (ram.data[bytes_read + 0] != 0x0) {
+            printf("Byte %d: 0x%X\n", bytes_read, ram.data[bytes_read + 0]);
         }
         bytes_read++;
     }
@@ -56,6 +55,10 @@ int main(int argc, char *argv[]) {
 
     printf("Successfully read %d bytes into the array.\n", bytes_read);
     printf("Starting execution...\n\n");
+
+    int hi_byte = fetch_instruction(&cpu, ram.data);
+    int lo_byte = fetch_instruction(&cpu, ram.data);
+    cpu.program_counter = ((lo_byte << 8) | hi_byte) - 1;
 
     do {
         process_instruction(&cpu, &ram);

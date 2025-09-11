@@ -34,7 +34,7 @@
 // ------- X register -------
 #define OP_LOADX_IMM 0xA2
 #define OP_LOADX_ZPG 0xA6
-#define OP_LOADX_ZPX 0xB6
+#define OP_LOADX_ZPY 0xB6
 #define OP_LOADX_ABS 0xAE
 #define OP_LOADX_ABY 0xBE
 
