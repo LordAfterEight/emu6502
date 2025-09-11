@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "cpu.h"
-#include "mem.h"
 
 int main(int argc, char *argv[]) {
     struct CPU cpu = {
