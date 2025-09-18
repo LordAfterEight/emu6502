@@ -1,6 +1,6 @@
 .segment "CODE"
 reset:
-    lda #$A9
+    lda #$A1
     and #$A3
     pha
     lda $0
