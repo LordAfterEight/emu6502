@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
     struct CPU cpu = {
-        .stack_pointer = 0x0100,
+        .stack_pointer = 0x0,
         .program_counter = 0xFFFB,
         .a_reg = 0,
         .x_reg = 0,

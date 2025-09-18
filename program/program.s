@@ -1,8 +1,9 @@
 .segment "CODE"
 reset:
     lda #$A9
+    and #$A3
     pha
-    and $100
+    lda $0
     brk
     jmp reset
 

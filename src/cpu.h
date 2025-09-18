@@ -86,7 +86,7 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->x_reg, cpu->x_reg);
             break;
         case OP_LOADX_ZPY:
-            cpu->x_reg = ram->data[fetch_instruction(cpu, ram->data) + cpu->y_reg];
+            cpu->x_reg = ram->data[fetch_instruction(cpu, ram->data) + cpu->y_reg] >> 12;;
             printf("\nLoaded 0x%02X (%d) into the A register (zero page)\n", cpu->x_reg, cpu->x_reg);
             break;
         case OP_LOADX_ABS:
@@ -175,7 +175,6 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             break;
         case OP_AND_ZPG:
             cpu->a_reg = cpu->a_reg & ram->data[fetch_instruction(cpu, ram->data)];
-            printf("%d", ram->data[0]);
             printf("\nPerformed AND operation (zero page). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
             break;
         case OP_AND_ZPX:
