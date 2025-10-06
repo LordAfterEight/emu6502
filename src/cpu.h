@@ -38,6 +38,7 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
     cpu->i_reg = fetch_instruction(cpu, ram->data);
     int hi_byte = 0;
     int lo_byte = 0;
+    int address = 0;
     switch (cpu->i_reg) {
         case OP_NOOP:
             increase_pc(cpu);
@@ -199,6 +200,87 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             cpu->a_reg = cpu->a_reg & ram->data[((lo_byte << 8) | hi_byte) + cpu->y_reg];
             printf("\nPerformed AND operation (absolute, y). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
             break;
+            
+        case OP_ORA_IMM:
+            cpu->a_reg = cpu->a_reg | fetch_instruction(cpu, ram->data);
+            printf("\nPerformed ORA operation (immediate). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_ORA_ZPG:
+            cpu->a_reg = cpu->a_reg | ram->data[fetch_instruction(cpu, ram->data)];
+            printf("\nPerformed ORA operation (zero page). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_ORA_ZPX:
+            cpu->a_reg = cpu->a_reg | ram->data[fetch_instruction(cpu, ram->data) + cpu->x_reg];
+            printf("\nPerformed ORA operation (zero page, x). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_ORA_ABS:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg | ram->data[(lo_byte << 8) | hi_byte];
+            printf("\nPerformed ORA operation (absolute). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_ORA_ABX:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg | ram->data[((lo_byte << 8) | hi_byte) + cpu->x_reg];
+            printf("\nPerformed ORA operation (absolute, x). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_ORA_ABY:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg | ram->data[((lo_byte << 8) | hi_byte) + cpu->y_reg];
+            printf("\nPerformed ORA operation (absolute, y). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+            
+        case OP_XOR_IMM:
+            cpu->a_reg = cpu->a_reg ^ fetch_instruction(cpu, ram->data);
+            printf("\nPerformed EOR operation (immediate). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_XOR_ZPG:
+            cpu->a_reg = cpu->a_reg ^ ram->data[fetch_instruction(cpu, ram->data)];
+            printf("\nPerformed EOR operation (zero page). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_XOR_ZPX:
+            cpu->a_reg = cpu->a_reg ^ ram->data[fetch_instruction(cpu, ram->data) + cpu->x_reg];
+            printf("\nPerformed EOR operation (zero page, x). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_XOR_ABS:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg ^ ram->data[(lo_byte << 8) | hi_byte];
+            printf("\nPerformed EOR operation (absolute). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_XOR_ABX:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg ^ ram->data[((lo_byte << 8) | hi_byte) + cpu->x_reg];
+            printf("\nPerformed EOR operation (absolute, x). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+        case OP_XOR_ABY:
+            hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            cpu->a_reg = cpu->a_reg ^ ram->data[((lo_byte << 8) | hi_byte) + cpu->y_reg];
+            printf("\nPerformed EOR operation (absolute, y). Resulting A register value: 0x%02X (%d)\n", cpu->a_reg, cpu->a_reg);
+            break;
+            
+        case OP_JMP_ABS:
+        	hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            address = (lo_byte << 8) | hi_byte;
+            cpu->program_counter = address;
+        	printf("\nJumped to address 0x%04X (%d)\n", address);
+        	break;
+        	
+        case OP_JSR_ABS:
+			hi_byte = fetch_instruction(cpu, ram->data);
+            lo_byte = fetch_instruction(cpu, ram->data);
+            address = (lo_byte << 8) | hi_byte;
+            ram->data[cpu->stack_pointer] = cpu->program_counter << 8;
+            ram->data[cpu->stack_pointer + 1] = (cpu->program_counter & 0xFF) - 1;
+            cpu->stack_pointer += 2;
+            cpu->program_counter = address;
+        	printf("\nJumped to subroutine at 0x%04X (%d)\n", address);
+        	break;
 
         default:
             printf("\nUnknown instruction: 0x%02X (%d)\n", cpu->i_reg, cpu->i_reg);

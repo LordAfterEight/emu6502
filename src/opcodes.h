@@ -1,7 +1,6 @@
 #define OP_HALT 0x00
 #define OP_NOOP 0xEA
 
-
 // ..._IMM => Immediate
 // ..._ZPG => Zero Page
 // ..._ZPX => Zero Page, X
@@ -89,6 +88,12 @@
 #define OP_ORA_ABS 0x0D
 #define OP_ORA_ABX 0x1D
 #define OP_ORA_ABY 0x19
+
+// --------- Jumps ---------
+#define OP_JMP_ABS 0x4C
+#define OP_JMP_IND 0x6C
+
+#define OP_JSR_ABS 0x20
 
 #define OP_TST_ZPG 0x24
 #define OP_TST_ABS 0x2C
