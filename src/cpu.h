@@ -268,7 +268,7 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             lo_byte = fetch_instruction(cpu, ram->data);
             address = (lo_byte << 8) | hi_byte;
             cpu->program_counter = address;
-        	printf("\nJumped to address 0x%04X (%d)\n", address);
+        	printf("\nJumped to address 0x%04X (%d)\n", address, address);
         	break;
         	
         case OP_JSR_ABS:
@@ -279,7 +279,7 @@ static inline void process_instruction(struct CPU* cpu, struct RAM* ram) {
             ram->data[cpu->stack_pointer + 1] = (cpu->program_counter & 0xFF) - 1;
             cpu->stack_pointer += 2;
             cpu->program_counter = address;
-        	printf("\nJumped to subroutine at 0x%04X (%d)\n", address);
+        	printf("\nJumped to subroutine at 0x%04X (%d)\n", address, address);
         	break;
 
         default:
